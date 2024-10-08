@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
 import {
@@ -7,25 +5,9 @@ import {
   collection,
   addDoc,
   getDocs,
-  deleteDoc,
   doc,
   updateDoc,
 } from "firebase/firestore";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
 import { firebaseConfig } from "./credenciais/firebase.credenciais";
 import * as transacaoServico from "./servicos/transacao.servico";
 import GastoMes from "./componentes/Graficos/GastosMes";
@@ -33,55 +15,51 @@ import Transacoes from "./componentes/Listagem/Transacoes";
 import Orcamento from "./componentes/Formularios/Orcamento";
 import Transacao from "./componentes/Formularios/Transacao";
 import Grid from "./componentes/Graficos/Grid";
+import { categorias } from "./constantes/categorias";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export default function EnhancedFinanceAdmin() {
-  const [transactions, setTransactions] = useState([]);
+  const [transacoes, setTransacoes] = useState([]);
   const [novaTransacao, setNovaTransacao] = useState({
-    date: "",
-    description: "",
-    amount: "",
-    category: "",
+    data: "",
+    descricao: "",
+    quantia: "",
+    categoria: "",
   });
-  const [orcamento, setOrcamento] = useState({ amount: 0, id: "" });
-  const [categories, setCategories] = useState([]);
+  const [orcamento, setOrcamento] = useState({ quantia: 0, id: "" });
 
   useEffect(() => {
     buscarTransacoes();
     buscarOrcamento();
-    fetchCategories();
   }, []);
 
   const buscarTransacoes = async () => {
     const transacoes = await transacaoServico.buscarTransacoes(db);
-    setTransactions(transacoes);
+    setTransacoes(transacoes);
   };
 
   const buscarOrcamento = async () => {
     const querySnapshot = await getDocs(collection(db, "orcamento"));
     if (!querySnapshot.empty) {
       const orcamentoDoc = querySnapshot.docs[0];
-      setOrcamento({ amount: orcamentoDoc.data().amount, id: orcamentoDoc.id });
+      setOrcamento({
+        quantia: orcamentoDoc.data().quantia,
+        id: orcamentoDoc.id,
+      });
     }
-  };
-
-  const fetchCategories = async () => {
-    const querySnapshot = await getDocs(collection(db, "categories"));
-    const fetchedCategories = querySnapshot.docs.map((doc) => doc.data().name);
-    setCategories(fetchedCategories);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNovaTransacao((prev) => ({ ...prev, [name]: value }));
+    setNovaTransacao((anterior) => ({ ...anterior, [name]: value }));
   };
 
   const aoAdicionarTransacao = async (e) => {
     e.preventDefault();
     await transacaoServico.criarTransacao(db, novaTransacao);
-    setNovaTransacao({ date: "", description: "", amount: "", category: "" });
+    setNovaTransacao({ data: "", descricao: "", quantia: "", categoria: "" });
     buscarTransacoes();
   };
 
@@ -91,48 +69,48 @@ export default function EnhancedFinanceAdmin() {
   };
 
   const aoMudarOrcamento = async (e) => {
-    const newBudgetAmount = parseFloat(e.target.value);
+    const newOrcamentoQuantia = parseFloat(e.target.value);
     if (orcamento.id) {
       await updateDoc(doc(db, "orcamento", orcamento.id), {
-        amount: newBudgetAmount,
+        quantia: newOrcamentoQuantia,
       }).catch((err) => console.log(err));
     } else {
       const docRef = await addDoc(collection(db, "orcamento"), {
-        amount: newBudgetAmount,
+        quantia: newOrcamentoQuantia,
       });
-      setOrcamento((prev) => ({ ...prev, id: docRef.id }));
+      setOrcamento((anterior) => ({ ...anterior, id: docRef.id }));
     }
-    setOrcamento((prev) => ({ ...prev, amount: newBudgetAmount }));
+    setOrcamento((anterior) => ({ ...anterior, quantia: newOrcamentoQuantia }));
   };
 
   const buscarTotalGasto = () => {
-    return transactions.reduce(
-      (sum, transaction) => sum + parseFloat(transaction.amount),
+    return transacoes.reduce(
+      (sum, transacao) => sum + parseFloat(transacao.quantia),
       0
     );
   };
 
-  const getCategoryData = () => {
-    const categoryTotals = transactions.reduce((totals, transaction) => {
-      totals[transaction.category] =
-        (totals[transaction.category] || 0) + parseFloat(transaction.amount);
+  const getCategoriaData = () => {
+    const categoriaTotals = transacoes.reduce((totals, transacao) => {
+      totals[transacao.categoria] =
+        (totals[transacao.categoria] || 0) + parseFloat(transacao.quantia);
       return totals;
     }, {});
-    return Object.entries(categoryTotals).map(([category, total]) => ({
-      category,
+    return Object.entries(categoriaTotals).map(([categoria, total]) => ({
+      categoria,
       total,
     }));
   };
 
   return (
     <div className="finance-admin">
-      <h1>Enhanced Finance Administration</h1>
+      <h1>Administrador de Finanças &#128181;</h1>
       <div className="grid">
         <Transacao
           aoAdicionarTransacao={aoAdicionarTransacao}
           novaTransacao={novaTransacao}
           handleInputChange={handleInputChange}
-          categories={categories}
+          categorias={categorias}
         />
         <Orcamento
           orcamento={orcamento}
@@ -140,11 +118,14 @@ export default function EnhancedFinanceAdmin() {
           buscarTotalGasto={buscarTotalGasto}
         />
       </div>
-      <Transacoes transactions={transactions} aoDeletarTransacao={aoDeletarTransacao}/>
+      <Transacoes
+        transacoes={transacoes}
+        aoDeletarTransacao={aoDeletarTransacao}
+      />
       <div>
-        <Grid transactions={transactions} getCategoryData={getCategoryData} />
+        <Grid transacoes={transacoes} getCategoriaData={getCategoriaData} />
 
-        <GastoMes transactions={transactions} />
+        <GastoMes transacoes={transacoes} />
       </div>
     </div>
   );

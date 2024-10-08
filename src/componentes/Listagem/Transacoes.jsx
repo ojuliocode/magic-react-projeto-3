@@ -1,28 +1,28 @@
-export default function Transacoes({transactions, aoDeletarTransacao}){
+export default function Transacoes({transacoes, aoDeletarTransacao}){
     return(
-        <div className="transactions">
-        <h2>Transactions</h2>
+        <div className="transacoes">
+        <h2>Transacoes</h2>
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Category</th>
-                <th>Action</th>
+                <th>Data</th>
+                <th>Descricao</th>
+                <th>Quantia</th>
+                <th>Categoria</th>
+                <th>Acao</th>
               </tr>
             </thead>
             <tbody>
-              {transactions.map((transaction) => (
-                <tr key={transaction.id}>
-                  <td>{transaction.date}</td>
-                  <td>{transaction.description}</td>
-                  <td>${parseFloat(transaction.amount).toFixed(2)}</td>
-                  <td>{transaction.category}</td>
+              {transacoes.map((transacao) => (
+                <tr key={transacao.id}>
+                  <td>{transacao.data}</td>
+                  <td>{transacao.descricao}</td>
+                  <td>R${parseFloat(transacao.quantia).toFixed(2)}</td>
+                  <td>{transacao.categoria}</td>
                   <td>
                     <button
-                      onClick={() => aoDeletarTransacao(transaction.id)}
+                      onClick={() => aoDeletarTransacao(transacao.id)}
                       className="delete-btn"
                     >
                       Delete

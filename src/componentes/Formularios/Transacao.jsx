@@ -2,66 +2,66 @@ export default function Transacao({
     aoAdicionarTransacao,
     novaTransacao,
     handleInputChange,
-    categories
+    categorias
 }){
     return(
         
-        <div className="add-transaction">
-          <h2>Add Transaction</h2>
+        <div className="add-transacao">
+          <h2>Adicionar transação</h2>
           <form onSubmit={aoAdicionarTransacao}>
             <div>
-              <label htmlFor="date">Date</label>
+              <label htmlFor="data">Data</label>
               <input
                 type="date"
-                id="date"
-                name="date"
-                value={novaTransacao.date}
+                id="data"
+                name="data"
+                value={novaTransacao.data}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div>
-              <label htmlFor="description">Description</label>
+              <label htmlFor="descricao">Descricao</label>
               <input
                 type="text"
-                id="description"
-                name="description"
-                value={novaTransacao.description}
+                id="descricao"
+                name="descricao"
+                value={novaTransacao.descricao}
                 onChange={handleInputChange}
-                placeholder="Description"
+                placeholder="Descricao"
                 required
               />
             </div>
             <div>
-              <label htmlFor="amount">Amount</label>
+              <label htmlFor="quantia">Quantia</label>
               <input
                 type="number"
-                id="amount"
-                name="amount"
-                value={novaTransacao.amount}
+                id="quantia"
+                name="quantia"
+                value={novaTransacao.quantia}
                 onChange={handleInputChange}
-                placeholder="Amount"
+                placeholder="Quantia"
                 required
               />
             </div>
             <div>
-              <label htmlFor="category">Category</label>
+              <label htmlFor="categoria">Categoria</label>
               <select
-                id="category"
-                name="category"
-                value={novaTransacao.category}
+                id="categoria"
+                name="categoria"
+                value={novaTransacao.categoria}
                 onChange={handleInputChange}
                 required
               >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                <option value="">Selecione a categoria</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria} value={categoria}>
+                    {categoria}
                   </option>
                 ))}
               </select>
             </div>
-            <button type="submit">Add Transaction</button>
+            <button type="submit">Adicionar transação</button>
           </form>
         </div>
     )

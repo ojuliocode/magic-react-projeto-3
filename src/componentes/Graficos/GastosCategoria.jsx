@@ -2,25 +2,25 @@ import { CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, Responsive
 import { COLORS } from "../../assets/colors";
 
 
-export default function GastosCategoria({getCategoryData}){
+export default function GastosCategoria({getCategoriaData}){
     return(
-        <div className="chart">
-            <h2>Spending by Category</h2>
+        <div className="grafico">
+            <h2>Gasto por Categoria</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={getCategoryData()}
+                  data={getCategoriaData()}
                   dataKey="total"
-                  nameKey="category"
+                  nameKey="categoria"
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
                   fill="#8884d8"
                   label
                 >
-                  {getCategoryData().map((entry, index) => (
+                  {getCategoriaData().map((entry, index) => (
                     <Cell
-                      key={`cell-${index}`}
+                      key={`cell-R${index}`}
                       fill={COLORS[index % COLORS.length]}
                     />
                   ))}

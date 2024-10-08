@@ -1,12 +1,12 @@
 import GastosCategoria from "./GastosCategoria";
 import GastosTempo from "./GastosTempo";
 
-export default function Grid({ transactions, getCategoryData }) {
+export default function Grid({ transacoes, getCategoriaData }) {
   return (
-    <div className="charts grid">
-      <GastosTempo transactions={transactions} />
+    <div className="graficos grid">
+      <GastosTempo transacoes={transacoes} />
 
-      <GastosCategoria getCategoryData={getCategoryData} />
+      <GastosCategoria getCategoriaData={getCategoriaData} />
     </div>
   );
 }
