@@ -5,11 +5,8 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
 import { firebaseConfig } from './credenciais/firebase.credenciais'
+import * as transacaoServico from './servicos/transacao.servico'
 
-// Initialize Firebase (replace with your own config)
-
-  
-  
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
@@ -17,27 +14,26 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
 export default function EnhancedFinanceAdmin() {
   const [transactions, setTransactions] = useState([])
-  const [newTransaction, setNewTransaction] = useState({ date: '', description: '', amount: '', category: '' })
-  const [budget, setBudget] = useState({ amount: 0, id: '' })
+  const [novaTransacao, setNovaTransacao] = useState({ date: '', description: '', amount: '', category: '' })
+  const [orcamento, setOrcamento] = useState({ amount: 0, id: '' })
   const [categories, setCategories] = useState([])
 
   useEffect(() => {
-    fetchTransactions()
-    fetchBudget()
+    buscarTransacoes()
+    buscarOrcamento()
     fetchCategories()
   }, [])
 
-  const fetchTransactions = async () => {
-    const querySnapshot = await getDocs(collection(db, "transactions"))
-    const fetchedTransactions = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    setTransactions(fetchedTransactions)
+  const buscarTransacoes = async () => {
+    const transacoes = await transacaoServico.buscarTransacoes(db)
+    setTransactions(transacoes)
   }
 
-  const fetchBudget = async () => {
-    const querySnapshot = await getDocs(collection(db, "budget"))
+  const buscarOrcamento = async () => {
+    const querySnapshot = await getDocs(collection(db, "orcamento"))
     if (!querySnapshot.empty) {
-      const budgetDoc = querySnapshot.docs[0]
-      setBudget({ amount: budgetDoc.data().amount, id: budgetDoc.id })
+      const orcamentoDoc = querySnapshot.docs[0]
+      setOrcamento({ amount: orcamentoDoc.data().amount, id: orcamentoDoc.id })
     }
   }
 
@@ -49,33 +45,33 @@ export default function EnhancedFinanceAdmin() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    setNewTransaction(prev => ({ ...prev, [name]: value }))
+    setNovaTransacao(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e) => {
+  const aoAdicionarTransacao = async (e) => {
     e.preventDefault()
-    await addDoc(collection(db, "transactions"), newTransaction)
-    setNewTransaction({ date: '', description: '', amount: '', category: '' })
-    fetchTransactions()
+    await transacaoServico.criarTransacao(db, novaTransacao)
+    setNovaTransacao({ date: '', description: '', amount: '', category: '' })
+    buscarTransacoes()
   }
 
-  const handleDelete = async (id) => {
-    await deleteDoc(doc(db, "transactions", id))
-    fetchTransactions()
+  const aoDeletarTransacao = async (transacaoId) => {
+    transacaoServico.deletarTransacao(db, transacaoId)
+    buscarTransacoes()
   }
 
-  const handleBudgetChange = async (e) => {
+  const aoMudarOrcamento = async (e) => {
     const newBudgetAmount = parseFloat(e.target.value)
-    if (budget.id) {
-      await updateDoc(doc(db, "budget", budget.id), { amount: newBudgetAmount }).catch(err => console.log(err))
+    if (orcamento.id) {
+      await updateDoc(doc(db, "orcamento", orcamento.id), { amount: newBudgetAmount }).catch(err => console.log(err))
     } else {
-      const docRef = await addDoc(collection(db, "budget"), { amount: newBudgetAmount })
-      setBudget(prev => ({ ...prev, id: docRef.id }))
+      const docRef = await addDoc(collection(db, "orcamento"), { amount: newBudgetAmount })
+      setOrcamento(prev => ({ ...prev, id: docRef.id }))
     }
-    setBudget(prev => ({ ...prev, amount: newBudgetAmount }))
+    setOrcamento(prev => ({ ...prev, amount: newBudgetAmount }))
   }
 
-  const getTotalSpent = () => {
+  const buscarTotalGasto = () => {
     return transactions.reduce((sum, transaction) => sum + parseFloat(transaction.amount), 0)
   }
 
@@ -94,14 +90,14 @@ export default function EnhancedFinanceAdmin() {
       <div className="grid">
         <div className="add-transaction">
           <h2>Add Transaction</h2>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={aoAdicionarTransacao}>
             <div>
               <label htmlFor="date">Date</label>
               <input
                 type="date"
                 id="date"
                 name="date"
-                value={newTransaction.date}
+                value={novaTransacao.date}
                 onChange={handleInputChange}
                 required
               />
@@ -112,7 +108,7 @@ export default function EnhancedFinanceAdmin() {
                 type="text"
                 id="description"
                 name="description"
-                value={newTransaction.description}
+                value={novaTransacao.description}
                 onChange={handleInputChange}
                 placeholder="Description"
                 required
@@ -124,7 +120,7 @@ export default function EnhancedFinanceAdmin() {
                 type="number"
                 id="amount"
                 name="amount"
-                value={newTransaction.amount}
+                value={novaTransacao.amount}
                 onChange={handleInputChange}
                 placeholder="Amount"
                 required
@@ -135,7 +131,7 @@ export default function EnhancedFinanceAdmin() {
               <select
                 id="category"
                 name="category"
-                value={newTransaction.category}
+                value={novaTransacao.category}
                 onChange={handleInputChange}
                 required
               >
@@ -149,20 +145,20 @@ export default function EnhancedFinanceAdmin() {
           </form>
         </div>
 
-        <div className="budget-overview">
+        <div className="orcamento-overview">
           <h2>Budget Overview</h2>
           <div>
-            <label htmlFor="budget">Monthly Budget</label>
+            <label htmlFor="orcamento">Monthly Budget</label>
             <input
               type="number"
-              id="budget"
-              value={budget.amount}
-              onChange={handleBudgetChange}
+              id="orcamento"
+              value={orcamento.amount}
+              onChange={aoMudarOrcamento}
             />
           </div>
-          <div className="budget-summary">
-            <p>Total Spent: ${getTotalSpent().toFixed(2)}</p>
-            <p>Remaining: ${(budget.amount - getTotalSpent()).toFixed(2)}</p>
+          <div className="orcamento-summary">
+            <p>Total Spent: ${buscarTotalGasto().toFixed(2)}</p>
+            <p>Remaining: ${(orcamento.amount - buscarTotalGasto()).toFixed(2)}</p>
           </div>
         </div>
       </div>
@@ -188,7 +184,7 @@ export default function EnhancedFinanceAdmin() {
                   <td>${parseFloat(transaction.amount).toFixed(2)}</td>
                   <td>{transaction.category}</td>
                   <td>
-                    <button onClick={() => handleDelete(transaction.id)} className="delete-btn">Delete</button>
+                    <button onClick={() => aoDeletarTransacao(transaction.id)} className="delete-btn">Delete</button>
                   </td>
                 </tr>
               ))}
