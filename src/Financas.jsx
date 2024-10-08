@@ -20,7 +20,7 @@ import { categorias } from "./constantes/categorias";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export default function EnhancedFinanceAdmin() {
+export default function Financas() {
   const [transacoes, setTransacoes] = useState([]);
   const [novaTransacao, setNovaTransacao] = useState({
     data: "",
@@ -51,7 +51,7 @@ export default function EnhancedFinanceAdmin() {
     }
   };
 
-  const handleInputChange = (e) => {
+  const aoMudarInput = (e) => {
     const { name, value } = e.target;
     setNovaTransacao((anterior) => ({ ...anterior, [name]: value }));
   };
@@ -109,7 +109,7 @@ export default function EnhancedFinanceAdmin() {
         <Transacao
           aoAdicionarTransacao={aoAdicionarTransacao}
           novaTransacao={novaTransacao}
-          handleInputChange={handleInputChange}
+          aoMudarInput={aoMudarInput}
           categorias={categorias}
         />
         <Orcamento

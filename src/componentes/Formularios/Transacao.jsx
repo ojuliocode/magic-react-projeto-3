@@ -1,7 +1,7 @@
 export default function Transacao({
     aoAdicionarTransacao,
     novaTransacao,
-    handleInputChange,
+    aoMudarInput,
     categorias
 }){
     return(
@@ -16,7 +16,7 @@ export default function Transacao({
                 id="data"
                 name="data"
                 value={novaTransacao.data}
-                onChange={handleInputChange}
+                onChange={aoMudarInput}
                 required
               />
             </div>
@@ -27,7 +27,7 @@ export default function Transacao({
                 id="descricao"
                 name="descricao"
                 value={novaTransacao.descricao}
-                onChange={handleInputChange}
+                onChange={aoMudarInput}
                 placeholder="Descricao"
                 required
               />
@@ -39,7 +39,7 @@ export default function Transacao({
                 id="quantia"
                 name="quantia"
                 value={novaTransacao.quantia}
-                onChange={handleInputChange}
+                onChange={aoMudarInput}
                 placeholder="Quantia"
                 required
               />
@@ -50,7 +50,7 @@ export default function Transacao({
                 id="categoria"
                 name="categoria"
                 value={novaTransacao.categoria}
-                onChange={handleInputChange}
+                onChange={aoMudarInput}
                 required
               >
                 <option value="">Selecione a categoria</option>

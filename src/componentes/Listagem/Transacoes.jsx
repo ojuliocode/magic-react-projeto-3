@@ -25,7 +25,7 @@ export default function Transacoes({transacoes, aoDeletarTransacao}){
                       onClick={() => aoDeletarTransacao(transacao.id)}
                       className="delete-btn"
                     >
-                      Delete
+                      Deletar
                     </button>
                   </td>
                 </tr>
